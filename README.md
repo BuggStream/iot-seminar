@@ -9,3 +9,7 @@ This repo contains the code for tracking birds using LoRa.
 - https://www.microchip.com/en-us/development-tool/EV23M25A
 - https://www.microchip.com/en-us/product/WLR089U0
 
+### Potential resources?
+
+- https://github.com/MicrochipTech/atsamr34_lorawan_rn_parser
+
