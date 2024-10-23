@@ -51,7 +51,9 @@ void setup() {
   lora.setDeviceClass(CLASS_A);
 
   // Set Data Rate
-  lora.setDataRate(SF8BW125);
+  lora.setDataRate(SF12BW125);
+
+  // lora.setTxPower(14, PA_BOOST_PIN);
 
   // set channel to random
   lora.setChannel(MULTI);
