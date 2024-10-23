@@ -15,10 +15,9 @@
 
 
 // OTAA credentials
-const char *devEui = "70B3D57ED006B4E7";
-const char *appEui = "60C5A8FFFE789D7C";
-//const char *appKey = "00137a100000147800137a1000001478";
-const char *appKey = "88000000000000000000000000000088";
+const char *devEui = "60C5A8FFFE789D7C";
+const char *appEui = "70B3D57ED006B4ED"; // Called joinEUI now
+const char *appKey = "--";
 
 const unsigned long interval = 10000;    // 10 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
@@ -85,7 +84,7 @@ void loop() {
     Serial.print("Sending: ");
     Serial.println(myStr);
     
-    lora.sendUplink(myStr, strlen(myStr), 0);
+    lora.sendUplink(myStr, strlen(myStr), 0, 1);
     counter++;
   }
 
