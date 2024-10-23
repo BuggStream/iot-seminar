@@ -4,6 +4,10 @@ This repo contains the code for tracking birds using LoRa.
 
 ## Useful resources
 
+### RAK3244
+
+- https://docs.rakwireless.com/Product-Categories/WisDuo/BastWAN/Quickstart/
+
 ### WLR089 XPLAINED PRO board
 
 - https://www.microchip.com/en-us/development-tool/EV23M25A
