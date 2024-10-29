@@ -1,5 +1,5 @@
 /**
- * Example of OTAA device      
+ * Example of ABP device
  * Authors: 
  *        Ivan Moreno
  *        Eduardo Contreras
@@ -14,10 +14,10 @@
 #include <lorawan.h>
 
 
-// OTAA credentials
-const char *devEui = "60C5A8FFFE789D7C";
-const char *appEui = "70B3D57ED006B4ED"; // Called joinEUI now
-const char *appKey = "--";
+//ABP Credentials 
+const char *devAddr = "260BA7C0";
+const char *nwkSKey = "199FB8012305C9664F84A9995526E1F1";
+const char *appSKey = "24BF104020A57ABAF8DC4D81BAF7D101";
 
 const unsigned long interval = 10000;    // 10 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
@@ -47,33 +47,25 @@ void setup() {
     return;
   }
 
+  pinMode(RFM_TCX_ON,OUTPUT);
+  pinMode(RFM_SWITCH,OUTPUT);
+  pinMode(LED_BUILTIN,OUTPUT);
+
   // Set LoRaWAN Class change CLASS_A or CLASS_C
   lora.setDeviceClass(CLASS_A);
 
   // Set Data Rate
   lora.setDataRate(SF12BW125);
 
-  // lora.setTxPower(14, PA_BOOST_PIN);
+  lora.setTxPower(14, PA_BOOST_PIN);
 
   // set channel to random
   lora.setChannel(MULTI);
   
-  // Put OTAA Key and DevAddress here
-  lora.setDevEUI(devEui);
-  lora.setAppEUI(appEui);
-  lora.setAppKey(appKey);
-
-  // Join procedure
-  bool isJoined;
-  do {
-    Serial.println("Joining...");
-
-    isJoined = lora.join();
-    
-    //wait for 10s to try again
-    delay(10000);
-  }while(!isJoined);
-  Serial.println("Joined to network");
+  // Put ABP Key and DevAddress here
+  lora.setNwkSKey(nwkSKey);
+  lora.setAppSKey(appSKey);
+  lora.setDevAddr(devAddr);
 }
 
 void loop() {
@@ -86,7 +78,7 @@ void loop() {
     Serial.print("Sending: ");
     Serial.println(myStr);
     
-    lora.sendUplink(myStr, strlen(myStr), 0, 1);
+    lora.sendUplink(myStr, strlen(myStr), 0,1);
     counter++;
   }
 
