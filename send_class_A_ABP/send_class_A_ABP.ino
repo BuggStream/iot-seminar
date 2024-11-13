@@ -15,9 +15,9 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BC8EC";
-const char *nwkSKey = "5C2FBDE75019052C129EDE92A0EE6DF8";
-const char *appSKey = "C964EAFBC3EA7C8C409FA72AA85F4017";
+const char *devAddr = "260BFBD6";
+const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
+const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 
 const unsigned long interval = 10000;    // 10 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
@@ -40,7 +40,7 @@ const sRFM_pins RFM_pins = {
 struct __attribute__ ((packed)) DataPacket {
   uint8_t tag;
   uint32_t data;
-}
+};
 
 void setup() {
   // Setup loraid access
@@ -86,16 +86,20 @@ void loop() {
     Serial.print("Sending: ");
     Serial.println(myStr);
 
-    payload[0] = (char) (analogValue & 0xFF);
-    payload[1] = (char) ((analogValue >> 8) & 0xFF);
-    payload[2] = (char) ((analogValue >> 16) & 0xFF);
-    payload[3] = (char) ((analogValue >> 24) & 0xFF);
+    // payload[0] = (char) (analogValue & 0xFF);
+    // payload[1] = (char) ((analogValue >> 8) & 0xFF);
+    // payload[2] = (char) ((analogValue >> 16) & 0xFF);
+    // payload[3] = (char) ((analogValue >> 24) & 0xFF);
 
-    sprintf(myStr, "Battery: %d", analogValue);
+    // sprintf(myStr, "Battery: %d", analogValue);
+
+    DataPacket packet = { 1, 10 };
+
+    sprintf(myStr, "packet{ tag: %d, data: %d }", packet.tag, packet.data);
 
     Serial.println(myStr);
     
-    lora.sendUplink(payload, strlen(payload), 0, 1);
+    lora.sendUplink((char*) &packet, sizeof(packet), 0, 1);
     counter++;
   }
 
