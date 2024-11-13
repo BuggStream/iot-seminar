@@ -15,7 +15,8 @@ This repo contains the code for tracking birds using LoRa.
 
 ### GPS module
 
-- https://www-hqonline-com.translate.goog/product-detail/gps-modules--positioning-modules--hangzhou-zhongke-microelectronic-atgm336h-5n31-2500408016?_x_tr_sl=en&_x_tr_tl=nl&_x_tr_hl=nl&_x_tr_pto=sc&_x_tr_hist=true
+- https://www.tinytronics.nl/product_files/002176_ATGM336H.pdf
+- https://forum.rakwireless.com/t/rak3244-with-rak4260-how-to-communicate-gps-to-rak3244-board/5794/4
 
 ### Potential resources?
 
