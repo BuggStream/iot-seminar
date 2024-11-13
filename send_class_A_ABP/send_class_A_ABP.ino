@@ -15,15 +15,16 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BA7C0";
-const char *nwkSKey = "199FB8012305C9664F84A9995526E1F1";
-const char *appSKey = "24BF104020A57ABAF8DC4D81BAF7D101";
+const char *devAddr = "260BC8EC";
+const char *nwkSKey = "5C2FBDE75019052C129EDE92A0EE6DF8";
+const char *appSKey = "C964EAFBC3EA7C8C409FA72AA85F4017";
 
 const unsigned long interval = 10000;    // 10 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
 unsigned int counter = 0;     // message counter
 
 char myStr[50];
+char payload[50];
 char outStr[255];
 byte recvStatus = 0;
 
@@ -35,6 +36,11 @@ const sRFM_pins RFM_pins = {
   .DIO2 = RFM_DIO2,
   .DIO5 = RFM_DIO5,
 };
+
+struct __attribute__ ((packed)) DataPacket {
+  uint8_t tag;
+  uint32_t data;
+}
 
 void setup() {
   // Setup loraid access
@@ -50,6 +56,7 @@ void setup() {
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
   pinMode(LED_BUILTIN,OUTPUT);
+  pinMode(A2, INPUT);
 
   // Set LoRaWAN Class change CLASS_A or CLASS_C
   lora.setDeviceClass(CLASS_A);
@@ -60,7 +67,7 @@ void setup() {
   lora.setTxPower(14, PA_BOOST_PIN);
 
   // set channel to random
-  lora.setChannel(MULTI);
+  lora.setChannel(CHRX2);
   
   // Put ABP Key and DevAddress here
   lora.setNwkSKey(nwkSKey);
@@ -72,13 +79,23 @@ void loop() {
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
+    uint32_t analogValue = analogRead(A2);
 
     sprintf(myStr, "Counter-%d", counter); 
 
     Serial.print("Sending: ");
     Serial.println(myStr);
+
+    payload[0] = (char) (analogValue & 0xFF);
+    payload[1] = (char) ((analogValue >> 8) & 0xFF);
+    payload[2] = (char) ((analogValue >> 16) & 0xFF);
+    payload[3] = (char) ((analogValue >> 24) & 0xFF);
+
+    sprintf(myStr, "Battery: %d", analogValue);
+
+    Serial.println(myStr);
     
-    lora.sendUplink(myStr, strlen(myStr), 0,1);
+    lora.sendUplink(payload, strlen(payload), 0, 1);
     counter++;
   }
 
