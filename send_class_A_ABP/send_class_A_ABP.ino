@@ -12,6 +12,7 @@
  */
 
 #include <lorawan.h>
+#include <TinyGPS++.h>
 
 
 //ABP Credentials 
@@ -22,6 +23,8 @@ const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 const unsigned long interval = 10000;    // 10 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
 unsigned int counter = 0;     // message counter
+
+TinyGPSPlus gps;
 
 char myStr[50];
 char payload[50];
@@ -45,6 +48,8 @@ struct __attribute__ ((packed)) DataPacket {
 void setup() {
   // Setup loraid access
   Serial.begin(115200);
+  Serial1.begin(9600); // GPS
+
   while(!Serial);
 
   if(!lora.init()){
@@ -76,22 +81,23 @@ void setup() {
 }
 
 void loop() {
+  while (Serial1.available()) {
+    int c = Serial1.read();
+    gps.encode(c);
+  }
+
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
+
+
+
     uint32_t analogValue = analogRead(A2);
 
     sprintf(myStr, "Counter-%d", counter); 
 
     Serial.print("Sending: ");
     Serial.println(myStr);
-
-    // payload[0] = (char) (analogValue & 0xFF);
-    // payload[1] = (char) ((analogValue >> 8) & 0xFF);
-    // payload[2] = (char) ((analogValue >> 16) & 0xFF);
-    // payload[3] = (char) ((analogValue >> 24) & 0xFF);
-
-    // sprintf(myStr, "Battery: %d", analogValue);
 
     DataPacket packet = { 1, 10 };
 
