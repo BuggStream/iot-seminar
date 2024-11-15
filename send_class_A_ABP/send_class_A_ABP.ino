@@ -41,8 +41,8 @@ const sRFM_pins RFM_pins = {
 };
 
 struct __attribute__ ((packed)) DataPacket {
-  uint8_t tag;
-  uint32_t data;
+  double latitude;
+  double longitude;
 };
 
 void setup() {
@@ -61,7 +61,6 @@ void setup() {
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
   pinMode(LED_BUILTIN,OUTPUT);
-  pinMode(A2, INPUT);
 
   // Set LoRaWAN Class change CLASS_A or CLASS_C
   lora.setDeviceClass(CLASS_A);
@@ -81,18 +80,18 @@ void setup() {
 }
 
 void loop() {
-  while (Serial1.available()) {
-    int c = Serial1.read();
-    gps.encode(c);
+  while (Serial1.available() > 0) {
+    gps.encode(Serial1.read());
   }
 
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
 
-
-
-    uint32_t analogValue = analogRead(A2);
+    Serial.println("Lat=");
+    Serial.println(gps.location.lat(), 6);
+    Serial.println("Long=");
+    Serial.println(gps.location.lng(), 6);
 
     sprintf(myStr, "Counter-%d", counter); 
 
