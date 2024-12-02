@@ -20,9 +20,9 @@ const char *devAddr = "260BFBD6";
 const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
 const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 
-const unsigned long interval = 10000;    // 10 s interval to send message
-unsigned long previousMillis = 0;  // will store last time message sent
-unsigned int counter = 0;     // message counter
+const unsigned long interval = 10000;     // 10 s interval to send message
+unsigned long previousMillis = 0;         // will store last time message sent
+unsigned int counter = 0;                 // message counter
 
 TinyGPSPlus gps;
 
@@ -48,18 +48,17 @@ struct __attribute__ ((packed)) DataPacket {
 
 // ============ Battery voltage ================== //
 float battery_read() {
-  // read battery voltage per %
-  long sum = 0;                   // sum of smaples taken
-  float voltage = 0.0;            // calculated voltage
+  long sum = 0;                           // Sum of smaples taken
+  float voltage = 0.0;                    // Calculated voltage
 
-  for (int i = 0; i < 500; i++) {
+  for (int i = 0; i < 500; i++) {         // Get average value from ADC 
     sum += analogRead( A0 );
     delayMicroseconds( 100 );
   }
 
   // Calculating the voltage
-  voltage = sum / 500.0;          // Get the average voltage reading
-  voltage = (3.3 * voltage) / 4095.0;
+  voltage = sum / 500.0;                  // Get the average voltage reading
+  voltage = (3.3 * voltage) / 4095.0;     // ADC conversion to voltage value
   return voltage;
 }
 // =============================================== //
