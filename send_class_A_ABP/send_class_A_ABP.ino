@@ -16,7 +16,7 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BFBD7";
+const char *devAddr = "260BFBD6";
 const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
 const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 
@@ -46,7 +46,7 @@ struct __attribute__ ((packed)) DataPacket {
 };
 
 
-// ============ Battery stuff ==================== //
+// ============ Battery voltage ================== //
 float battery_read() {
   // read battery voltage per %
   long sum = 0;                   // sum of smaples taken
@@ -77,17 +77,11 @@ void setup() {
     return;
   }
 
-
-
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
   pinMode(LED_BUILTIN,OUTPUT);
-  // pinMode(A2, INPUT);
 
-  Serial.println("RFM95 not detected");
-  // initReadVBAT();
-
-  // =========== Battery Stuff ============ //
+  // =========== Battery Setup ============ //
   analogReference( AR_DEFAULT );
   analogReadResolution( 12 );
   // ====================================== //
