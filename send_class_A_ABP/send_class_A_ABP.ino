@@ -16,7 +16,7 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BFBD6";
+const char *devAddr = "260BFBD7";
 const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
 const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 
@@ -27,7 +27,7 @@ unsigned int counter = 0;     // message counter
 TinyGPSPlus gps;
 
 char myStr[50];
-char payload[50];
+char payload[50];              
 char outStr[255];
 byte recvStatus = 0;
 
@@ -45,6 +45,25 @@ struct __attribute__ ((packed)) DataPacket {
   double longitude;
 };
 
+
+// ============ Battery stuff ==================== //
+float battery_read() {
+  // read battery voltage per %
+  long sum = 0;                   // sum of smaples taken
+  float voltage = 0.0;            // calculated voltage
+
+  for (int i = 0; i < 500; i++) {
+    sum += analogRead( A0 );
+    delayMicroseconds( 100 );
+  }
+
+  // Calculating the voltage
+  voltage = sum / 500.0;          // Get the average voltage reading
+  voltage = (3.3 * voltage) / 4095.0;
+  return voltage;
+}
+// =============================================== //
+
 void setup() {
   // Setup loraid access
   Serial.begin(115200);
@@ -58,9 +77,20 @@ void setup() {
     return;
   }
 
+
+
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
   pinMode(LED_BUILTIN,OUTPUT);
+  // pinMode(A2, INPUT);
+
+  Serial.println("RFM95 not detected");
+  // initReadVBAT();
+
+  // =========== Battery Stuff ============ //
+  analogReference( AR_DEFAULT );
+  analogReadResolution( 12 );
+  // ====================================== //
 
   // Set LoRaWAN Class change CLASS_A or CLASS_C
   lora.setDeviceClass(CLASS_A);
@@ -83,15 +113,19 @@ void loop() {
   while (Serial1.available() > 0) {
     gps.encode(Serial1.read());
   }
-
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
-
     Serial.println("Lat=");
     Serial.println(gps.location.lat(), 6);
     Serial.println("Long=");
     Serial.println(gps.location.lng(), 6);
+
+// ============ Reading Battery ============= //
+    Serial.print("Battery Level: ");
+    Serial.println(battery_read(), 2);
+    delay(1000);
+// ========================================== //
 
     sprintf(myStr, "Counter-%d", counter); 
 
@@ -100,7 +134,7 @@ void loop() {
 
     DataPacket packet = { 1, 10 };
 
-    sprintf(myStr, "packet{ tag: %d, data: %d }", packet.tag, packet.data);
+    sprintf(myStr, "packet{ latitude: %d, longitude: %d }", packet.latitude, packet.longitude);
 
     Serial.println(myStr);
     
