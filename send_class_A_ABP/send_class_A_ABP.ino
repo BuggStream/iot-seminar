@@ -26,6 +26,7 @@ unsigned int counter = 0;     // message counter
 
 TinyGPSPlus gps;
 
+
 char myStr[50];
 char payload[50];
 char outStr[255];
@@ -48,7 +49,6 @@ struct __attribute__ ((packed)) DataPacket {
 void setup() {
   // Setup loraid access
   Serial.begin(115200);
-  Serial1.begin(9600); // GPS
 
   while(!Serial);
 
@@ -57,6 +57,9 @@ void setup() {
     delay(5000);
     return;
   }
+
+  Serial1.begin(9600); // GPS
+  while(!Serial1);
 
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
@@ -81,28 +84,38 @@ void setup() {
 
 void loop() {
   while (Serial1.available() > 0) {
-    gps.encode(Serial1.read());
+    char c = Serial1.read();
+    // Serial.print(c);
+    gps.encode(c);
   }
 
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
 
-    Serial.println("Lat=");
-    Serial.println(gps.location.lat(), 6);
-    Serial.println("Long=");
-    Serial.println(gps.location.lng(), 6);
+    Serial.print("Satellites: ");
+    Serial.println(gps.satellites.value());
+    Serial.print("Chars: ");
+    Serial.println(gps.charsProcessed());
+
+    if (gps.location.isValid()) {
+      Serial.println("Lat=");
+      Serial.println(gps.location.lat(), 6);
+      Serial.println("Long=");
+      Serial.println(gps.location.lng(), 6);
+    }
+
+    if (gps.date.isValid()) {
+      sprintf(myStr, "%s-%s-%s", gps.date.year(), gps.date.month(), gps.date.day()); 
+      Serial.println(myStr);
+    }
 
     sprintf(myStr, "Counter-%d", counter); 
 
     Serial.print("Sending: ");
     Serial.println(myStr);
 
-    DataPacket packet = { 1, 10 };
-
-    sprintf(myStr, "packet{ tag: %d, data: %d }", packet.tag, packet.data);
-
-    Serial.println(myStr);
+    DataPacket packet = { 1.0, 10.0 };
     
     lora.sendUplink((char*) &packet, sizeof(packet), 0, 1);
     counter++;
