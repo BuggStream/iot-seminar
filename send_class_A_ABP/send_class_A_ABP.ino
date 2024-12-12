@@ -150,7 +150,7 @@ void loop() {
     
 
     if (gps.date.isValid()) {
-      sprintf(myStr, "%s-%s-%s", gps.date.year(), gps.date.month(), gps.date.day()); 
+      sprintf(myStr, "%d-%d-%d", gps.date.year(), gps.date.month(), gps.date.day()); 
       Serial.println(myStr);
     }
 
