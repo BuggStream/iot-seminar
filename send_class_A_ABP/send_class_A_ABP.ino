@@ -20,9 +20,7 @@ const char *devAddr = "260BFBD6";
 const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
 const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
 
-const unsigned long interval = 10000;    // 10 s interval to send message
-unsigned long previousMillis = 0;  // will store last time message sent
-unsigned int counter = 0;     // message counter
+
 
 TinyGPSPlus gps;
 
@@ -42,9 +40,34 @@ const sRFM_pins RFM_pins = {
 };
 
 struct __attribute__ ((packed)) DataPacket {
-  double latitude;
-  double longitude;
-};
+
+  // gps data
+  double gpsLatitude = 52.0;
+  double gpsLongitude = 4.31;
+  double gpsAltitude = 20.0;
+  double gpsSpeed = 0.0;
+  uint32_t gpsTrack = 0;
+  uint32_t gpsTimeData = 0;
+  
+  // message
+  uint32_t txCount = 0;
+  uint16_t rxCount = 0;
+
+  // measured voltages
+  uint16_t battVolt = 0;
+  uint16_t solarVolt = 0;
+   
+  uint8_t txPeriod = 10;
+
+  uint8_t gpsUsedSats = 0;
+
+  uint8_t chgVal = 0;
+
+} packet;
+
+const unsigned long interval = packet.txPeriod * 1000;    // 10 s interval to send message
+unsigned long previousMillis = 0;  // will store last time message sent
+unsigned int counter = 0;     // message counter
 
 void setup() {
   // Setup loraid access
@@ -99,11 +122,32 @@ void loop() {
     Serial.println(gps.charsProcessed());
 
     if (gps.location.isValid()) {
+      packet.gpsLatitude = gps.location.lat();
+      packet.gpsLongitude = gps.location.lng();
+
       Serial.println("Lat=");
-      Serial.println(gps.location.lat(), 6);
+      Serial.println(packet.gpsLatitude, 6);
       Serial.println("Long=");
-      Serial.println(gps.location.lng(), 6);
+      Serial.println(packet.gpsLongitude, 6);
     }
+
+    if (gps.altitude.isValid()) {
+      packet.gpsAltitude = gps.altitude.meters();
+    }
+
+    if (gps.speed.isValid()) {
+      packet.gpsSpeed = gps.speed.kmph();
+    }
+
+    if (gps.satellites.isValid()) {
+      packet.gpsUsedSats = (uint8_t)gps.satellites.value();
+    }
+
+     if (gps.time.isValid()) {
+      packet.gpsTimeData = gps.time.value();
+    }
+
+    
 
     if (gps.date.isValid()) {
       sprintf(myStr, "%s-%s-%s", gps.date.year(), gps.date.month(), gps.date.day()); 
@@ -115,7 +159,10 @@ void loop() {
     Serial.print("Sending: ");
     Serial.println(myStr);
 
-    DataPacket packet = { 1.0, 10.0 };
+    packet.txCount = counter;
+  
+
+    // DataPacket packet = { longitude, latitude, counter };
     
     lora.sendUplink((char*) &packet, sizeof(packet), 0, 1);
     counter++;
