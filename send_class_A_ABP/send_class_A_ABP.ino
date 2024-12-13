@@ -16,9 +16,9 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BFBD6";
-const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
-const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
+const char *devAddr = "260BFEB7";
+const char *nwkSKey = "58A058C1249C4D59163B1932339DBEE6";
+const char *appSKey = "8DE1A3D16ED60A2AA9C4FCC81BB579E0";
 
 const unsigned long interval = 10000;     // 10 s interval to send message
 unsigned long previousMillis = 0;         // will store last time message sent
@@ -58,7 +58,7 @@ float battery_read() {
 
   // Calculating the voltage
   voltage = sum / 500.0;                  // Get the average voltage reading
-  voltage = (3.3 * voltage) / 4095.0;     // ADC conversion to voltage value
+  voltage = (100 * voltage) / 1023.0;     // ADC conversion to voltage value
   return voltage;
 }
 // =============================================== //
@@ -82,7 +82,7 @@ void setup() {
 
   // =========== Battery Setup ============ //
   analogReference( AR_DEFAULT );
-  analogReadResolution( 12 );
+  analogReadResolution( 10 );
   // ====================================== //
 
   // Set LoRaWAN Class change CLASS_A or CLASS_C
@@ -103,16 +103,16 @@ void setup() {
 }
 
 void loop() {
-  while (Serial1.available() > 0) {
-    gps.encode(Serial1.read());
-  }
+  // while (Serial1.available() > 0) {
+  //   gps.encode(Serial1.read());
+  // }
   // Check interval overflow
   if(millis() - previousMillis > interval) {
     previousMillis = millis(); 
-    Serial.println("Lat=");
-    Serial.println(gps.location.lat(), 6);
-    Serial.println("Long=");
-    Serial.println(gps.location.lng(), 6);
+    // Serial.println("Lat=");
+    // Serial.println(gps.location.lat(), 6);
+    // Serial.println("Long=");
+    // Serial.println(gps.location.lng(), 6);
 
 // ============ Reading Battery ============= //
     Serial.print("Battery Level: ");
