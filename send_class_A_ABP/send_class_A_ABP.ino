@@ -16,9 +16,9 @@
 
 
 //ABP Credentials 
-const char *devAddr = "260BFBD6";
-const char *nwkSKey = "7641969B78B77A8376640D8D8AC8930D";
-const char *appSKey = "CA504E06F8960F443D80DAA4C61255B9";
+const char *devAddr = "260BFEB7";
+const char *nwkSKey = "58A058C1249C4D59163B1932339DBEE6";
+const char *appSKey = "8DE1A3D16ED60A2AA9C4FCC81BB579E0";
 
 
 
@@ -65,9 +65,26 @@ struct __attribute__ ((packed)) DataPacket {
 
 } packet;
 
-const unsigned long interval = packet.txPeriod * 1000;    // 10 s interval to send message
+const unsigned long interval = packet.txPeriod * 3000;    // 30 s interval to send message
 unsigned long previousMillis = 0;  // will store last time message sent
 unsigned int counter = 0;     // message counter
+
+// ============ Battery voltage ================== //
+float battery_read() {
+  long sum = 0;                           // Sum of smaples taken
+  float voltage = 0.0;                    // Calculated voltage
+
+  for (int i = 0; i < 500; i++) {         // Get average value from ADC 
+    sum += analogRead( A0 );
+    delayMicroseconds( 100 );
+  }
+
+  // Calculating the voltage
+  voltage = sum / 500.0;                  // Get the average voltage reading
+  voltage = (100 * voltage) / 1023.0;     // ADC conversion to voltage value
+  return voltage;
+}
+// =============================================== //
 
 void setup() {
   // Setup loraid access
@@ -87,6 +104,11 @@ void setup() {
   pinMode(RFM_TCX_ON,OUTPUT);
   pinMode(RFM_SWITCH,OUTPUT);
   pinMode(LED_BUILTIN,OUTPUT);
+
+  // =========== Battery Setup ============ //
+  analogReference( AR_DEFAULT );
+  analogReadResolution( 10 );
+  // ====================================== //
 
   // Set LoRaWAN Class change CLASS_A or CLASS_C
   lora.setDeviceClass(CLASS_A);
@@ -120,6 +142,12 @@ void loop() {
     Serial.println(gps.satellites.value());
     Serial.print("Chars: ");
     Serial.println(gps.charsProcessed());
+
+    // ============ Reading Battery ============= //
+    packet.chgVal = (uint8_t)battery_read()
+    Serial.print("Battery Level: ");
+    Serial.println(packet.chgVal);
+// ========================================== //
 
     if (gps.location.isValid()) {
       packet.gpsLatitude = gps.location.lat();
